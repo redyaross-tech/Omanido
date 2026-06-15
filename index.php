@@ -16,8 +16,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "SELECT * FROM user WHERE username = ? AND password = ?";
     $result = $pdo->prepare($sql);
     $result->execute([$username, $password]);
-    $user = $result->fetch();
-
+    $user = $result->fetch(PDO::FETCH_ASSOC);
     // Controleer of er een rij is gevonden
     if($result->rowCount() > 0) {
         // Gebruiker is ingelogd
