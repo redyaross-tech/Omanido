@@ -7,6 +7,11 @@ if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
     exit;
 }
 
+if(!isset($_SESSION['isAdmin']) || $_SESSION['isAdmin'] !== 1){
+    header("location: dashboard.php");
+    exit;
+}
+
 // show users
 
 $stmt = $pdo->prepare("SELECT * FROM user");
