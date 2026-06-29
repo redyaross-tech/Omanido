@@ -10,7 +10,7 @@ include 'includes/transactionTable.php';
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     // Gebruikersnaam en wachtwoord uit post halen
     $username = $_POST['username'];
-    $password = $_POST['password'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     // kwetsbaar voor SQL injectie
     $sql = "SELECT * FROM user WHERE username = ? AND password = ?";

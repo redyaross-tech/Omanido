@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute([$username]);
         if ($stmt->rowCount() == 0) {
             if (strlen($password) >= 8 && preg_match('/[' . preg_quote($letters . $digits . $specials, '/') . ']/', $password)) {
+                $password = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO user (username, password, balance, isAdmin) VALUES (?, ?, 100, 0)");
                 $stmt->execute([$username, $password]);
                 $success = "Je account is aangemaakt, je kunt nu inloggen";
