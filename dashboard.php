@@ -9,17 +9,46 @@ if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
 
 // als button is ingedrukt
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $ontvanger = $_POST['ontvanger'];
-    $bedrag = $_POST['bedrag'];
+    switch($_POST['ontvanger']){
+        case $_POST['ontvanger'] == $_SESSION['user']['username']:
+            $ontvanger = '';
+            break;
+        default:
+            $ontvanger = $_POST['ontvanger'];
+            break;
+    }
+    switch($_POST['bedrag']){
+        case '0':
+            $bedrag = '';
+            break;
+        case '0.00':
+            $bedrag = '';
+            break;
+        case $_POST['bedrag'] < 0:
+            $bedrag = '';
+            break;
+        case ctype_alpha($_POST['bedrag']):
+            $bedrag = '';
+            break;
+        default:
+            $bedrag = $_POST['bedrag'];
+            break;
+    }
 
     // Controleer of de ontvanger bestaat
     $stmt = $pdo->prepare("SELECT * FROM user WHERE username = ?");
-    $stmt->execute([$ontvanger]);
+    switch($ontvanger){
+        case '':
+            break;
+        default:
+            $stmt->execute([$ontvanger]);
+            break;
+    }
     $ontvanger = $stmt->fetch();
 
     if($stmt->rowCount() == 1) {
         // Controleer of de gebruiker genoeg saldo heeft
-        if($_SESSION['user']['balance'] >= $bedrag) {
+        if($bedrag && $_SESSION['user']['balance'] >= $bedrag) {
             // Zet de transactie in de database
             $stmt = $pdo->prepare("INSERT INTO transaction (sender, receiver, amount, description) VALUES (?, ?, ?, ?)");
             $stmt->execute([$_SESSION['user']['id'], $ontvanger['id'], $bedrag, $_POST['omschrijving']]);
@@ -50,10 +79,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             $success = "Het bedrag is succesvol overgemaakt";
         } else {
-            $error = "Je hebt niet genoeg saldo om dit bedrag over te maken";
+            switch($bedrag){
+                case '':
+                    $error = "Het bedrag moet groter zijn dan 0";
+                    break;
+                default:
+                    $error = "Je hebt niet genoeg saldo om dit bedrag over te maken";
+                    break;
+            }
         }
     } else {
-        $error = "Deze gebruiker bestaat niet";
+        switch($ontvanger){
+            case '':
+                $error = "Voer een geldige ontvanger in";
+                break;
+            default:
+                $error = "Deze gebruiker bestaat niet";
+                break;
+        }
     }
 
 }
